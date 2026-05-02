@@ -1,0 +1,48 @@
+(function() {
+      const slides = document.querySelectorAll('.slide');
+      const navDots = document.getElementById('navDots');
+      let currentIndex = 0;
+      let isScrolling = false;
+
+      // Build navigation dots
+      slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+        dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        dot.addEventListener('click', () => {
+          slides[i].scrollIntoView({ behavior: 'smooth' });
+        });
+        navDots.appendChild(dot);
+      });
+
+      // Intersection Observer for visibility and animation
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            const idx = Array.from(slides).indexOf(entry.target);
+            currentIndex = idx;
+            document.querySelectorAll('.nav-dot').forEach((d, i) => {
+              d.classList.toggle('active', i === idx);
+            });
+          }
+        });
+      }, { threshold: 0.5 });
+
+      slides.forEach(s => observer.observe(s));
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') {
+          e.preventDefault();
+          if (currentIndex < slides.length - 1) {
+            slides[currentIndex + 1].scrollIntoView({ behavior: 'smooth' });
+          }
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (currentIndex > 0) {
+            slides[currentIndex - 1].scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+      });
+    })();
